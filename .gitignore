@@ -1,0 +1,14 @@
+# edit after: ls -ap >> .gitignore
+aarch64/
+aarch64.1.2.0/
+.cproject
+omniORB-4.2.3/
+omniORB-4.2.3.tar.bz2
+OpenRTM-aist-1.2.0/
+OpenRTM-aist-1.2.0.tar.gz
+OpenRTM-aist-1.2.2/
+.project
+rtctree/
+rtshell/
+.settings/
+x86_64/
