@@ -13,7 +13,7 @@ rtshell/
 rtsprofile/
 .settings/
 x86_64/
-dl/
+#dl/
 omninames*.bak
 omninames*.dat
 omniORBpy-4.2.3/
