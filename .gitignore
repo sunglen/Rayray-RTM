@@ -10,5 +10,14 @@ OpenRTM-aist-1.2.2/
 .project
 rtctree/
 rtshell/
+rtsprofile/
 .settings/
 x86_64/
+dl/
+omninames*.bak
+omninames*.dat
+omniORBpy-4.2.3/
+OpenRTM-aist-Python-1.2.2/
+r32.4.3/
+r32.6.1/
+rtc*.log

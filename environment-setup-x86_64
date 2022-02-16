@@ -1,0 +1,7 @@
+PLATFORM=x86_64
+RTM_ROOT=$HOME/rayray/$PLATFORM
+
+export LD_LIBRARY_PATH=$RTM_ROOT/lib/:$LD_LIBRARY_PATH
+export PYTHONPATH=$RTM_ROOT/lib/python2.7/site-packages/:$PYTHONPATH
+export PATH=$RTM_ROOT/bin:$PATH
+

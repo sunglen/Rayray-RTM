@@ -1,8 +1,17 @@
-#build rayray-rtm for L4T r32.6.1
+# build rayray-rtm for L4T r32.6.1
 
-## if do not want to build from scratch
+> if do not want to build from scratch
 
-run `pkg_install_ubuntu.sh` (with parameters, see www.openrtm.org for details) on both host(x86_64) and target(aarch64).
+>> run `pkg_install_ubuntu.sh` (with parameters, see www.openrtm.org for details) on both host(x86_64) and target(aarch64).
+
+> for L4T R32.4.3
+
+>> also work for L4T R32.4.3 of Nvidia Jetson devices, just change rootfs related path settings.
+
+> bugs
+
+>> a lot of binaries coded absolute path by `--prefix=` through installation, therefore, for distribution, 
+>> it's better to set `--prefix=/opt/rayray/aarch64` other than `--prefix=/home/s/rayray/aarch64`.
 
 ## build on host (x86_64)
 
@@ -44,7 +53,7 @@ tar -xvf omniORB-4.2.3.tar.bz2
 cd omniORB-4.2.3/
 cp ~/TITAN4_BSP/doc/config.guess bin/scripts/
 cp ~/TITAN4_BSP/doc/config.sub bin/scripts/
-./configure --prefix=/home/s/rayray/x86_64
+./configure --prefix=/home/s/rayray/x86_64 --with-openssl
 make
 make install
 make clean
@@ -137,11 +146,14 @@ config.guess  omniORBpy-4.2.3/  OpenRTM-aist-Python-1.2.2/  rtctree/            
 ### set build environment
 
 ```
-$ . set-env 
-$ cat set-env 
-export LD_LIBRARY_PATH=/home/s/rayray/aarch64/lib/:$LD_LIBRARY_PATH
-export PYTHONPATH=/home/s/rayray/aarch64/lib/python2.7/site-packages/:$PYTHONPATH
-export PATH=/home/s/rayray/aarch64/bin:$PATH
+$ . environment-setup-aarch64
+$ cat environment-setup-aarch64 
+PLATFORM=aarch64
+RTM_ROOT=$HOME/rayray/$PLATFORM
+
+export LD_LIBRARY_PATH=$RTM_ROOT/lib/:$LD_LIBRARY_PATH
+export PYTHONPATH=$RTM_ROOT/lib/python2.7/site-packages/:$PYTHONPATH
+export PATH=$RTM_ROOT/bin:$PATH
 ```
 
 ### build omniORBpy-4.2.3
@@ -164,6 +176,14 @@ sudo python setup.py install
 
 install to /usr/local/lib/python2.7/dist-packages/
 
+or better, make it portable:
+
+```
+python setup.py install --prefix=~/rayray/aarch64
+```
+
+install to dir which use `~/rayray/aarch64` as root.
+
 ### build rtctree
 
 do not use sudo for build, if su to root, should also set build environment before build/install.
@@ -171,7 +191,6 @@ do not use sudo for build, if su to root, should also set build environment befo
 ```
 cd /home/s/rayray/rtctree
 python setup.py build
-sudo python setup.py install
 ```
 
 if build rtctree successfully: 
@@ -184,23 +203,38 @@ ComponentObserver_idl.py  ExtendedFsmService_idl.py  Logger_idl.py              
 DataPort_idl.py           __init__.py                Manager_idl.py             OpenRTM__POA    RTC__POA    SDOPackage
 ```
 
+install:
+
+```
+python setup.py install --prefix=~/rayray/aarch64 #copied rtctree_aist-4.2.3-py2.7.egg only
+#bug here: must copy the following contents manually.
+cp -r build/lib.linux-aarch64-2.7/rtctree/ ../aarch64/lib/python2.7/site-packages/
+cp -r rtctree_aist.egg-info/ ../aarch64/lib/python2.7/site-packages/rtctree_aist-4.2.3-py2.7.egg-info
+```
+
 ### build rtsprofile
 
 ```
 cd /home/s/rayray/rtsprofile
 python setup.py build
-sudo python setup.py install
+python setup.py install --prefix=~/rayray/aarch64
+cp -r build/lib.linux-aarch64-2.7/rtsprofile/ ../aarch64/lib/python2.7/site-packages/
+cp -r rtsprofile_aist.egg-info/ ../aarch64/lib/python2.7/site-packages/rtsprofile_aist-4.1.5-py2.7.egg-info
 ```
 
 ### build rtshell
 
+fix setup.py to adapt python2.7.
+
 ```
 cd /home/s/rayray/rtshell
 python setup.py build
-sudo python setup.py install
+python setup.py install --prefix=~/rayray/aarch64
 ```
 
-### fix rtctree
+### fix rtctree (obsolete)
+
+> the fix is obsolete and unnecessary since all parts have been installed to `~/rayray/aarch64`.
 
 if rtshell (rtls, rtcon, ...) is not available due to the following error: `ImportError: No module named rtc`:
 
@@ -251,6 +285,114 @@ $ rtact /localhost/linux.host_cxt/ConsoleIn0.rtc /localhost/linux.host_cxt/Conso
 - https://github.com/OpenRTM/rtsprofile
 - https://github.com/OpenRTM/rtshell
 
-## for L4T R32.4.3
+# build rayray-rtm for x86_64
 
-also work for L4T R32.4.3 of Nvidia Jetson devices.
+## build dirs
+
+```
+$ ls -p
+build/  dl/  r32.4.3/  r32.6.1/  README.md  x86_64/
+$ ls -p dl
+omniORB-4.2.3.tar.bz2  omniORBpy-4.2.3.tar.bz2  OpenRTM-aist-1.2.2.tar.gz  OpenRTM-aist-Python-1.2.2.tar.gz  rtctree.git.tar.gz  rtshell.git.tar.gz  rtsprofile.git.tar.gz
+$ ls -p r32.4.3
+aarch64/
+```
+## build omniORB-4.2.3
+
+already done in the procedure above.
+
+## build OpenRTM-aist-1.2.2
+
+```
+sudo apt install libssl-dev libboost-dev libboost-system-dev libboost-filesystem-dev libboost-thread-dev
+sudo apt install uuid-dev
+export PATH=/home/s/rayray/x86_64/bin:$PATH
+cd OpenRTM-aist-1.2.0
+export LDFLAGS="-lssl $LDFLAGS"
+./configure --prefix=/home/s/rayray/x86_64 \
+--with-omniorb=/home/s/rayray/x86_64 --without-artlinux --with-gnu-ld --enable-ssl --without-doxygen \
+--enable-fluentd=no --enable-observer=yes
+make
+make install
+```
+
+## build omniORBpy-4.2.3
+
+```
+cd omniORBpy-4.2.3
+./configure --prefix=/home/s/rayray/x86_64 --with-omniorb=/home/s/rayray/x86_64
+make
+make install
+```
+
+## build OpenRTM-aist-Python-1.2.2
+
+```
+cd OpenRTM-aist-Python-1.2.2
+python setup.py install --prefix=/home/s/rayray/x86_64
+```
+
+## build rtctree
+
+always use rtctree from the same official source along with rtshell. 
+
+```
+export LD_LIBRARY_PATH=/home/s/rayray/x86_64/lib/:$LD_LIBRARY_PATH
+export PYTHONPATH=/home/s/rayray/x86_64/lib/python2.7/site-packages/:$PYTHONPATH
+python setup.py build
+python setup.py install --prefix=/home/s/rayray/x86_64 #copied rtctree_aist-4.2.3-py2.7.egg only
+#bug here: must copy the following contents manually.
+cp -r build/lib.linux-x86_64-2.7/rtctree/ ../x86_64/lib/python2.7/site-packages/
+cp -r rtctree_aist.egg-info/ ../x86_64/lib/python2.7/site-packages/rtctree_aist-4.2.3-py2.7.egg-info
+```
+## build rtsprofile
+
+```
+python setup.py build
+python setup.py install --prefix=/home/s/rayray/x86_64
+cp -r build/lib.linux-x86_64-2.7/rtsprofile/ ../x86_64/lib/python2.7/site-packages/
+cp -r rtsprofile_aist.egg-info/ ../x86_64/lib/python2.7/site-packages/rtsprofile_aist-4.1.5-py2.7.egg-info
+```
+## build rtshell
+
+fix setup.py to adapt python2.7, and disable build/install documentation.
+
+```
+python setup.py build
+python setup.py install --prefix=/home/s/rayray/x86_64
+```
+## run first example
+
+terminal 1:
+
+```
+$ . ~/rayray/environment-setup-x86_64
+$ rtm-naming
+$ ~/rayray/x86_64/share/openrtm-1.2/components/c++/examples/ConsoleInComp
+```
+
+terminal 2:
+
+```
+$ ~/rayray/x86_64/share/openrtm-1.2/components/c++/examples/ConsoleOutComp
+```
+
+terminal 3:
+
+> s-HP-Laptop-14s-cr2xxx.host_cxt is the name of machine.
+
+```
+$ . ~/rayray/environment-setup-x86_64
+$ rtls -R localhost
+.:
+s-HP-Laptop-14s-cr2xxx.host_cxt/
+
+./s-HP-Laptop-14s-cr2xxx.host_cxt:
+ConsoleIn0.rtc  ConsoleOut0.rtc
+
+
+$ rtcon /localhost/s-HP-Laptop-14s-cr2xxx.host_cxt/ConsoleIn0.rtc:out /localhost/s-HP-Laptop-14s-cr2xxx.host_cxt/ConsoleOut0.rtc:in
+
+$ rtact /localhost/s-HP-Laptop-14s-cr2xxx.host_cxt/ConsoleIn0.rtc /localhost/s-HP-Laptop-14s-cr2xxx.host_cxt/ConsoleOut0.rtc
+
+```
