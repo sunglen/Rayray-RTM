@@ -13,7 +13,7 @@ if [ ! -z "$LD_LIBRARY_PATH" ]; then
 fi
 #export SDKTARGETSYSROOT=/home/s/pallas/ti-processor-sdk-linux-j7-evm-08_00_00_08/linux-devkit/sysroots/aarch64-linux
 export SDKTARGETSYSROOT=/home/s/pallas/ti-processor-sdk-linux-j7-evm-08_00_00_08/targetfs
-export PATH=/home/s/pallas/ti-processor-sdk-linux-j7-evm-08_00_00_08/linux-devkit/sysroots/x86_64-arago-linux/usr/bin:/home/s/pallas/ti-processor-sdk-linux-j7-evm-08_00_00_08/linux-devkit/sysroots/x86_64-arago-linux/usr/sbin:/home/s/pallas/ti-processor-sdk-linux-j7-evm-08_00_00_08/linux-devkit/sysroots/x86_64-arago-linux/bin:/home/s/pallas/ti-processor-sdk-linux-j7-evm-08_00_00_08/linux-devkit/sysroots/x86_64-arago-linux/sbin:/home/s/pallas/ti-processor-sdk-linux-j7-evm-08_00_00_08/linux-devkit/sysroots/x86_64-arago-linux/usr/bin/../x86_64-arago-linux/bin:/home/s/pallas/ti-processor-sdk-linux-j7-evm-08_00_00_08/linux-devkit/sysroots/x86_64-arago-linux/usr/bin/aarch64-linux:/home/s/pallas/ti-processor-sdk-linux-j7-evm-08_00_00_08/linux-devkit/sysroots/x86_64-arago-linux/usr/bin/aarch64-linux-musl:$PATH
+export PATH=/home/s/rayray/x86_64/bin:/home/s/pallas/ti-processor-sdk-linux-j7-evm-08_00_00_08/linux-devkit/sysroots/x86_64-arago-linux/usr/bin:/home/s/pallas/ti-processor-sdk-linux-j7-evm-08_00_00_08/linux-devkit/sysroots/x86_64-arago-linux/usr/sbin:/home/s/pallas/ti-processor-sdk-linux-j7-evm-08_00_00_08/linux-devkit/sysroots/x86_64-arago-linux/bin:/home/s/pallas/ti-processor-sdk-linux-j7-evm-08_00_00_08/linux-devkit/sysroots/x86_64-arago-linux/sbin:/home/s/pallas/ti-processor-sdk-linux-j7-evm-08_00_00_08/linux-devkit/sysroots/x86_64-arago-linux/usr/bin/../x86_64-arago-linux/bin:/home/s/pallas/ti-processor-sdk-linux-j7-evm-08_00_00_08/linux-devkit/sysroots/x86_64-arago-linux/usr/bin/aarch64-linux:/home/s/pallas/ti-processor-sdk-linux-j7-evm-08_00_00_08/linux-devkit/sysroots/x86_64-arago-linux/usr/bin/aarch64-linux-musl:$PATH
 export PKG_CONFIG_SYSROOT_DIR=$SDKTARGETSYSROOT
 export PKG_CONFIG_PATH=$SDKTARGETSYSROOT/usr/lib/pkgconfig:$SDKTARGETSYSROOT/usr/share/pkgconfig
 export CONFIG_SITE=/home/s/pallas/ti-processor-sdk-linux-j7-evm-08_00_00_08/linux-devkit/site-config-aarch64-linux
@@ -43,7 +43,9 @@ export CONFIGURE_FLAGS="--target=aarch64-linux --host=aarch64-linux --build=x86_
 export CFLAGS=" -O2 -pipe -g -feliminate-unused-debug-types "
 export CXXFLAGS=" -O2 -pipe -g -feliminate-unused-debug-types "
 export LDFLAGS="-Wl,-O1 -Wl,--hash-style=gnu -Wl,--as-needed"
-export CPPFLAGS="-I$SDKTARGETSYSROOT/usr/include/c++/9.2.1 -I$SDKTARGETSYSROOT/usr/include/c++/9.2.1/aarch64-none-linux-gnu -DHAVE_STD=1"
+#export CPPFLAGS="-I$SDKTARGETSYSROOT/usr/include/c++/9.2.1 -I$SDKTARGETSYSROOT/usr/include/c++/9.2.1/aarch64-none-linux-gnu -DHAVE_STD=1"
+#export CPPFLAGS="-I$SDKTARGETSYSROOT/usr/include/c++/9.2.1 -I$SDKTARGETSYSROOT/usr/include/c++/9.2.1/aarch64-none-linux-gnu -I/home/s/pallas/ti-processor-sdk-linux-j7-evm-08_00_00_08/targetfs/usr/include/python3.8"
+export CPPFLAGS="-I$SDKTARGETSYSROOT/usr/include/c++/9.2.1 -I$SDKTARGETSYSROOT/usr/include/c++/9.2.1/aarch64-none-linux-gnu"
 export KCFLAGS="--sysroot=$SDKTARGETSYSROOT"
 export OECORE_DISTRO_VERSION="2020.09"
 export OECORE_SDK_VERSION="2020.09"

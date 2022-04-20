@@ -1,52 +1,7 @@
-# Check for LD_LIBRARY_PATH being set, which can break SDK and generally is a bad practice
-# http://tldp.org/HOWTO/Program-Library-HOWTO/shared-libraries.html#AEN80
-# http://xahlee.info/UnixResource_dir/_/ldpath.html
-# Only disable this check if you are absolutely know what you are doing!
-if [ ! -z "$LD_LIBRARY_PATH" ]; then
-    echo "Your environment is misconfigured, you probably need to 'unset LD_LIBRARY_PATH'"
-    echo "but please check why this was set in the first place and that it's safe to unset."
-    echo "The SDK will not operate correctly in most cases when LD_LIBRARY_PATH is set."
-    return 1
-fi
+PLATFORM=aarch64
+RTM_ROOT=/opt/rayray/$PLATFORM
 
-export SDKROOT=/home/s/pallas/ti-processor-sdk-linux-j7-evm-08_00_00_08
-export SDKTARGETSYSROOT=$SDKROOT/targetfs
-export PATH=$SDKROOT/linux-devkit/sysroots/x86_64-arago-linux/usr/bin:$PATH
-export PKG_CONFIG_SYSROOT_DIR=$SDKTARGETSYSROOT
-export PKG_CONFIG_PATH=$SDKTARGETSYSROOT/usr/lib/pkgconfig:$SDKTARGETSYSROOT/usr/share/pkgconfig:$SDKTARGETSYSROOT/usr/lib/aarch64-none-linux-gnu/pkgconfig
-#export CONFIG_SITE=
-export OECORE_NATIVE_SYSROOT=""
-export OECORE_TARGET_SYSROOT="$SDKTARGETSYSROOT"
-export OECORE_ACLOCAL_OPTS=""
-export OECORE_BASELIB="lib"
-export OECORE_TARGET_ARCH="aarch64"
-export OECORE_TARGET_OS="linux"
-unset command_not_found_handle
-export CC="aarch64-none-linux-gnu-gcc --sysroot=$SDKTARGETSYSROOT"
-export CXX="aarch64-none-linux-gnu-g++ --sysroot=$SDKTARGETSYSROOT"
-export CPP="aarch64-none-linux-gnu-gcc -E --sysroot=$SDKTARGETSYSROOT"
-export AS="aarch64-none-linux-gnu-as "
-export LD="aarch64-none-linux-gnu-ld  --sysroot=$SDKTARGETSYSROOT"
-export GDB=aarch64-none-linux-gnu-gdb
-export STRIP=aarch64-none-linux-gnu-strip
-export RANLIB=aarch64-none-linux-gnu-ranlib
-export OBJCOPY=aarch64-none-linux-gnu-objcopy
-export OBJDUMP=aarch64-none-linux-gnu-objdump
-export READELF=aarch64-none-linux-gnu-readelf
-export AR=aarch64-none-linux-gnu-ar
-export NM=aarch64-none-linux-gnu-nm
-export M4=m4
-export TARGET_PREFIX=aarch64-none-linux-gnu-
-export CONFIGURE_FLAGS="--target=aarch64-linux --host=aarch64-linux --build=x86_64-linux --with-sysroot=$SDKTARGETSYSROOT"
-#export CFLAGS=" -g -Wall -MD -MP -std=gnu99 -D_GNU_SOURCE "
-export CFLAGS=" -g -Wall "
-export CXXFLAGS="-g -Wall"
-export LDFLAGS="-Wl,-rpath-link=$SDKTARGETSYSROOT/usr/lib \
--Wl,-rpath-link=$SDKTARGETSYSROOT/usr/lib/aarch64-none-linux-gnu \
--Wl,-rpath-link=$SDKTARGETSYSROOT/lib \
--Wl,-rpath-link=$SDKTARGETSYSROOT/lib/aarch64-none-linux-gnu"
-export CPPFLAGS="-I$SDKTARGETSYSROOT/usr/include/c++/9.2.1 -I$SDKTARGETSYSROOT/usr/include/c++/9.2.1/aarch64-none-linux-gnu -DHAVE_STD=1"
-export KCFLAGS="--sysroot=$SDKTARGETSYSROOT"
-export ARCH=arm64
-export CROSS_COMPILE=aarch64-none-linux-gnu-
+export LD_LIBRARY_PATH=$RTM_ROOT/lib/:$LD_LIBRARY_PATH
+export PYTHONPATH=$RTM_ROOT/lib/python3.8/site-packages/:$PYTHONPATH
+export PATH=$RTM_ROOT/bin:$PATH
 

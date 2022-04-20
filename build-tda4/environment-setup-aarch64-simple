@@ -1,0 +1,21 @@
+export SDKTARGETSYSROOT=/home/s/pallas/ti-processor-sdk-linux-j7-evm-08_00_00_08/targetfs
+export PATH=$PATH:/home/s/rayray/x86_64/bin:/home/s/pallas/ti-processor-sdk-linux-j7-evm-08_00_00_08/linux-devkit/sysroots/x86_64-arago-linux/usr/bin
+export ARCH=arm64
+export CROSS_COMPILE=aarch64-none-linux-gnu-
+export CXXFLAGS="-I$SDKTARGETSYSROOT/usr/include/c++/9.2.1 -I$SDKTARGETSYSROOT/usr/include/c++/9.2.1/aarch64-none-linux-gnu"
+export CC="aarch64-none-linux-gnu-gcc  --sysroot=$SDKTARGETSYSROOT"
+export CXX="aarch64-none-linux-gnu-g++  --sysroot=$SDKTARGETSYSROOT"
+export CPP="aarch64-none-linux-gnu-gcc -E  --sysroot=$SDKTARGETSYSROOT"
+export AS="aarch64-none-linux-gnu-as "
+export LD="aarch64-none-linux-gnu-ld  --sysroot=$SDKTARGETSYSROOT"
+export GDB=aarch64-none-linux-gnu-gdb
+export STRIP=aarch64-none-linux-gnu-strip
+export RANLIB=aarch64-none-linux-gnu-ranlib
+export OBJCOPY=aarch64-none-linux-gnu-objcopy
+export OBJDUMP=aarch64-none-linux-gnu-objdump
+export READELF=aarch64-none-linux-gnu-readelf
+export AR=aarch64-none-linux-gnu-ar
+export NM=aarch64-none-linux-gnu-nm
+export M4=m4
+export LDFLAGS="-lssl"
+

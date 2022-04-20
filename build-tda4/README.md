@@ -2,11 +2,26 @@
 
 > a lot of binaries coded absolute path by `--prefix=` through installation. for distribution, it's better to set `--prefix=/opt/rayray/aarch64` than `--prefix=/home/s/rayray/aarch64`.
 
-## build on host (x86_64)
+## python version
 
-### python version
+- host: python3.8
 
-python2.7
+install python3.8 to host:
+
+```
+sudo apt install libpython3.8-dev
+```
+
+it will install all necessary libraries, to uninstall:
+
+```
+sudo apt remove libpython3.8 libpython3.8-dev libpython3.8-minimal libpython3.8-stdlib python3.8 python3.8-dev python3.8-minimal
+```
+- target: python3.8
+
+install ipk packages if not exist in targetfs.
+
+## cross build on host (x86_64)
 
 ### build dependencies
 
@@ -99,7 +114,6 @@ make veryclean
 
 please note, `make clean` or `make veryclean` is a must.
 
-
 build lib:
 
 ```
@@ -109,30 +123,50 @@ export PATH=/home/s/rayray/x86_64/bin:$PATH
 mkdir build_aarch64
 ```
 
-source shell environment file.
+source shell environment file:
 
 ```
 cd build_aarch64
-. ../../build-tda4/environment-setup-aarch64-linux
+. ../../build-tda4/environment-setup-aarch64-simple
 ```
+
+run configure script:
 
 ```
 ../configure --target=aarch64-linux --host=aarch64-linux --build=x86_64-linux \
 --with-openssl OPENSSL_CFLAGS=-I/home/s/pallas/ti-processor-sdk-linux-j7-evm-08_00_00_08/targetfs/usr/include/ \
 OPENSSL_LIBS=-L/home/s/pallas/ti-processor-sdk-linux-j7-evm-08_00_00_08/targetfs/usr/lib/ \
---prefix=/opt/rayray/aarch64
+--prefix=/opt/rayray/aarch64 PYTHON=/usr/bin/python3.8
+```
+
+> NOTE: `/usr/bin/python3.8` is python path for target. `omniidl` of target will use this path.
+
+> NOTE: if checking result is `checking whether the compiler supports ISO C++ standard library... yes`, it's unnecessary to add `-DHAVE_STD=1` to `CPPFLAGS`.
+
+install appl:
+
+```
 make
 make install
 cd src/appl/
 make
 make install
+```
+
+fix `mk/python.mk`:
+
+(e.g. `python3-dev` was installed to `/home/s/pallas/ti-processor-sdk-linux-j7-evm-08_00_00_08/targetfs/usr/include/python3.8/`)
+
+set `PYVERSION`, `PYPREFIX`, `PYINCDIR` and `PythonSHAREDLIB_SUFFIX`, most of them can be defined by run python3.8 commands on target.
+
+install tool:
+
+```
 cd ../..
-cd src/tool #need libpython-dev in rootfs
+cd src/tool
 make
 make install
 ```
-
-### fix broken symbolic links in BSP's rootfs
 
 ### build OpenRTM-aist-1.2.2
 
@@ -140,55 +174,53 @@ after building omniORB-4.2.3:
 
 ```
 cd /home/s/rayray/OpenRTM-aist-1.2.2
-. /opt/s/titan4-bsp-r32.6.1/environment-setup-aarch64 #if not performed
-export LDFLAGS="-lssl $LDFLAGS"
-./configure --target=aarch64-linux-gnu --host=aarch64-linux-gnu --build=x86_64-linux \
---with-sysroot=/opt/s/titan4-bsp-r32.6.1/out/Linux_for_Tegra/rootfs --prefix=/home/s/rayray/aarch64 \
---with-omniorb=/home/s/rayray/aarch64 --without-artlinux --with-gnu-ld --enable-ssl --without-doxygen \
+. ../build-tda4/environment-setup-aarch64-simple
+./configure --target=aarch64-linux --host=aarch64-linux --build=x86_64-linux \
+--with-sysroot=/home/s/pallas/ti-processor-sdk-linux-j7-evm-08_00_00_08/targetfs \
+--prefix=/opt/rayray/aarch64 \
+--with-omniorb=/opt/rayray/aarch64 \
+--without-artlinux --with-gnu-ld --enable-ssl --without-doxygen \
 --enable-fluentd=no --enable-observer=yes
 make
 make install
 ```
 
-## build on target (aarch64)
+## local build on target (aarch64)
 
 ### copy aarch64 dir from host to target.
 
-```
-$ scp -r /home/s/rayray/aarch64 s@192.168.4.101:/home/s/rayray/
-```
+copy `/opt/rayray/aarch64` from host to targetfs.
 
-### python version
-
-python2.7
-
-### build dir
+### check build dir on target
 
 ```
-$ cd /home/s/rayray/
-$ ls -p
-aarch64/      config.sub        omniORBpy-4.2.3.tar.bz2     OpenRTM-aist-Python-1.2.2.tar.gz  rtshell/     set-rtshell-env
-config.guess  omniORBpy-4.2.3/  OpenRTM-aist-Python-1.2.2/  rtctree/                          rtsprofile/
+root@j7-evm:~/rayray# ls -p
+OpenRTM-aist-Python-1.2.2/	  config.guess	environment-setup-aarch64  omniORBpy-4.2.3.tar.bz2  rtctree.git.tar.gz  rtshell.git.tar.gz  rtsprofile.git.tar.gz
+OpenRTM-aist-Python-1.2.2.tar.gz  config.sub	omniORBpy-4.2.3/           rtctree/		    rtshell/	        rtsprofile/
 ```
+
 ### set build environment
 
 ```
-$ . environment-setup-aarch64
-$ cat environment-setup-aarch64 
+root@j7-evm:~/rayray# . ./environment-setup-aarch64 
+root@j7-evm:~/rayray# cat ./environment-setup-aarch64 
 PLATFORM=aarch64
-RTM_ROOT=$HOME/rayray/$PLATFORM
+RTM_ROOT=/opt/rayray/$PLATFORM
 
 export LD_LIBRARY_PATH=$RTM_ROOT/lib/:$LD_LIBRARY_PATH
-export PYTHONPATH=$RTM_ROOT/lib/python2.7/site-packages/:$PYTHONPATH
+export PYTHONPATH=$RTM_ROOT/lib/python3.8/site-packages/:$PYTHONPATH
 export PATH=$RTM_ROOT/bin:$PATH
 ```
 
 ### build omniORBpy-4.2.3
 
+adjust to the correct date and time for the target.
+
 ```
+tar -xvf omniORBpy-4.2.3.tar.bz2 
 cp config.guess config.sub omniORBpy-4.2.3/bin/scripts/
-cd omniORBpy-4.2.3
-./configure --prefix=/home/s/rayray/aarch64 --with-omniorb=/home/s/rayray/aarch64
+cd omniORBpy-4.2.3/
+./configure --prefix=/opt/rayray/aarch64 --with-omniorb=/opt/rayray/aarch64
 make
 make install
 ```
@@ -196,115 +228,87 @@ make install
 ### build OpenRTM-aist-Python-1.2.2
 
 ```
-cd /home/s/rayray/OpenRTM-aist-Python-1.2.2
-python setup.py build
-sudo python setup.py install
+tar -xvf OpenRTM-aist-Python-1.2.2.tar.gz 
+cd OpenRTM-aist-Python-1.2.2/
+python3.8 setup.py build
+python3.8 setup.py install --prefix=/opt/rayray/aarch64
 ```
-
-install to /usr/local/lib/python2.7/dist-packages/
-
-or better, make it portable:
-
-```
-python setup.py install --prefix=~/rayray/aarch64
-```
-
-install to dir which use `~/rayray/aarch64` as root.
 
 ### build rtctree
 
-do not use sudo for build, if su to root, should also set build environment before build/install.
+```
+tar -xvf rtctree.git.tar.gz 
+cd rtctree/
+python3.8 setup.py build
+python3.8 setup.py install --prefix=/opt/rayray/aarch64
+```
+`python3.8 setup.py install --prefix=/opt/rayray/aarch64` copied `rtctree_aist-4.2.3-py3.8.egg` only.
+
+it's done for python3.8.
+
+but for python2.7, must copy the following contents manually.
 
 ```
-cd /home/s/rayray/rtctree
-python setup.py build
-```
-
-if build rtctree successfully: 
-
-```
-cd /home/s/rayray/rtctree
-$ ls build/lib.linux-aarch64-2.7/rtctree/rtc/
-BasicDataType_idl.py      ExtendedDataTypes_idl.py   InterfaceDataTypes_idl.py  OpenRTM         RTC         RTM         SDOPackage_idl.py
-ComponentObserver_idl.py  ExtendedFsmService_idl.py  Logger_idl.py              OpenRTM_idl.py  RTC_idl.py  RTM__POA    SDOPackage__POA
-DataPort_idl.py           __init__.py                Manager_idl.py             OpenRTM__POA    RTC__POA    SDOPackage
-```
-
-install:
-
-```
-python setup.py install --prefix=~/rayray/aarch64 #copied rtctree_aist-4.2.3-py2.7.egg only
-#bug here: must copy the following contents manually.
-cp -r build/lib.linux-aarch64-2.7/rtctree/ ../aarch64/lib/python2.7/site-packages/
-cp -r rtctree_aist.egg-info/ ../aarch64/lib/python2.7/site-packages/rtctree_aist-4.2.3-py2.7.egg-info
+cp -r build/lib/rtctree/ /opt/rayray/aarch64/lib/python2.7/site-packages/
+cp -r rtctree_aist.egg-info/ /opt/rayray/aarch64/lib/python2.7/site-packages/rtctree_aist-4.2.3-py2.7.egg-info
 ```
 
 ### build rtsprofile
 
 ```
-cd /home/s/rayray/rtsprofile
-python setup.py build
-python setup.py install --prefix=~/rayray/aarch64
-cp -r build/lib.linux-aarch64-2.7/rtsprofile/ ../aarch64/lib/python2.7/site-packages/
-cp -r rtsprofile_aist.egg-info/ ../aarch64/lib/python2.7/site-packages/rtsprofile_aist-4.1.5-py2.7.egg-info
+tar -xvf rtsprofile.git.tar.gz 
+cd rtsprofile/
+python3.8 setup.py build
+python3.8 setup.py install --prefix=/opt/rayray/aarch64
 ```
 
 ### build rtshell
 
-fix setup.py to adapt python2.7.
+fix `setup.py`: disable build and install documentation.
 
 ```
-cd /home/s/rayray/rtshell
-python setup.py build
-python setup.py install --prefix=~/rayray/aarch64
+tar -xvf rtshell.git.tar.gz 
+cd rtshell/
+vi setup.py 
+python3.8 setup.py build
+python3.8 setup.py install --prefix=/opt/rayray/aarch64
 ```
-
-### fix rtctree (obsolete)
-
-> the fix is obsolete and unnecessary since all parts have been installed to `~/rayray/aarch64`.
-
-if rtshell (rtls, rtcon, ...) is not available due to the following error: `ImportError: No module named rtc`:
-
-```
-export PYTHONPATH=/home/s/rayray/rtctree/build/lib.linux-aarch64-2.7/:$PYTHONPATH
-```
-
-or copy rtctree to exist PYTHONPATH manually.
 
 ### run first example
 
 terminal 1:
 
 ```
-$ . ~/rayray/set-env
-$ rtm-naming
-$ ~/rayray/aarch64/share/openrtm-1.2/components/c++/examples/ConsoleInComp
+. ~/rayray/environment-setup-aarch64
+rtm-naming
+/opt/rayray/aarch64/share/openrtm-1.2/components/c++/examples/ConsoleInComp
 ```
 
 terminal 2:
 
 ```
-$ ~/rayray/aarch64/share/openrtm-1.2/components/c++/examples/ConsoleOutComp
+/opt/rayray/aarch64/share/openrtm-1.2/components/c++/examples/ConsoleOutComp
 ```
 
 terminal 3:
 
-> linux.host_cxt is the name of machine.
+> `j7-evm.host_cxt` is the name of machine.
 
 ```
-$ . ~/rayray/set-env
-$ rtls -R localhost
+root@j7-evm:~# . rayray/environment-setup-aarch64 
+root@j7-evm:~# rtls -R localhost
 .:
-linux.host_cxt/
+j7-evm.host_cxt/
 
-./linux.host_cxt:
+./j7-evm.host_cxt:
 ConsoleIn0.rtc  ConsoleOut0.rtc
 
-$ rtcon /localhost/linux.host_cxt/ConsoleIn0.rtc:out /localhost/linux.host_cxt/ConsoleOut0.rtc:in
-
-$ rtact /localhost/linux.host_cxt/ConsoleIn0.rtc /localhost/linux.host_cxt/ConsoleOut0.rtc
-
+root@j7-evm:~# rtcon /localhost/j7-evm.host_cxt/ConsoleIn0.rtc:out /localhost/j7-evm.host_cxt/ConsoleOut0.rtc:in
+root@j7-evm:~# rtact /localhost/j7-evm.host_cxt/ConsoleIn0.rtc /localhost/j7-evm.host_cxt/ConsoleOut0.rtc
 ```
+### distribute
+
+copy `environment-setup-aarch64` to `/opt/rayray/aarch64`, and zip the aarch64 dir to a tarball.
 
 ## official git repositories
 
