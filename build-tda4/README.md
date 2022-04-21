@@ -9,7 +9,7 @@
 install python3.8 to host:
 
 ```
-sudo apt install libpython3.8-dev
+sudo apt install python3.8 libpython3.8-dev
 ```
 
 it will install all necessary libraries, to uninstall:
@@ -83,13 +83,14 @@ root@j7-evm:~# opkg install boost-dev_1.72.0-r0.0_aarch64.ipk
 root@j7-evm:~# opkg install boost-staticdev_1.72.0-r0.0_aarch64.ipk
 ```
 
-method 2: use qemu. not verified.
+method 2: use qemu. verified.
 
 ```
 $ sudo cp /usr/bin/qemu-aarch64-static targetfs/usr/bin/qemu-aarch64-static
 $ ./ch-mount.sh -m /home/s/pallas/ti-processor-sdk-linux-j7-evm-08_00_00_08/targetfs/
 # opkg install boost-dev_1.72.0-r0.0_aarch64.ipk
 # opkg install boost-staticdev_1.72.0-r0.0_aarch64.ipk
+# exit
 $ ./ch-mount.sh -u /home/s/pallas/ti-processor-sdk-linux-j7-evm-08_00_00_08/targetfs/
 ```
 
@@ -114,13 +115,15 @@ make veryclean
 
 please note, `make clean` or `make veryclean` is a must.
 
-build lib:
+prepare:
 
 ```
 cp ../build-tda4/config.guess bin/scripts/
 cp ../build-tda4/config.sub bin/scripts/
 export PATH=/home/s/rayray/x86_64/bin:$PATH
 mkdir build_aarch64
+sudo mkdir -p /opt/rayray/aarch64
+sudo chown $USER:$USER /opt/rayray/aarch64
 ```
 
 source shell environment file:
@@ -143,7 +146,7 @@ OPENSSL_LIBS=-L/home/s/pallas/ti-processor-sdk-linux-j7-evm-08_00_00_08/targetfs
 
 > NOTE: if checking result is `checking whether the compiler supports ISO C++ standard library... yes`, it's unnecessary to add `-DHAVE_STD=1` to `CPPFLAGS`.
 
-install appl:
+build and install lib, build and install appl:
 
 ```
 make
@@ -163,6 +166,7 @@ install tool:
 
 ```
 cd ../..
+cp ../../build-tda4/omniORB-4.2.3-mk-python.mk ../mk/python.mk
 cd src/tool
 make
 make install
