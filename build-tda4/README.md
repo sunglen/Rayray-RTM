@@ -431,3 +431,88 @@ $ rtcon /localhost/s-HP-Laptop-14s-cr2xxx.host_cxt/ConsoleIn0.rtc:out /localhost
 $ rtact /localhost/s-HP-Laptop-14s-cr2xxx.host_cxt/ConsoleIn0.rtc /localhost/s-HP-Laptop-14s-cr2xxx.host_cxt/ConsoleOut0.rtc
 
 ```
+
+## first test for SDK 8.4
+
+install rayray-rtm binaries to targetfs of 8.4:
+
+```
+cd ti-processor-sdk-linux-j7-evm-08_04_00_11/targetfs/opt
+sudo tar xvf ~/rayray/dist/tda4-opt-rayray.tar.gz 
+```
+
+login tda4 of ip address 192.168.4.105.
+
+tda4 terminal 1:
+
+```
+. /opt/rayray/environment-setup-aarch64
+rtm-naming
+/opt/rayray/aarch64/share/openrtm-1.2/components/c++/examples/ConsoleInComp
+```
+
+tda4 terminal 2:
+
+```
+/opt/rayray/aarch64/share/openrtm-1.2/components/c++/examples/ConsoleOutComp
+```
+
+tda4 terminal 3:
+
+```
+. /opt/rayray/environment-setup-aarch64
+rtls -R localhost
+.:
+j7-evm.host_cxt/
+
+./j7-evm.host_cxt:
+ConsoleIn0.rtc  ConsoleOut0.rtc
+```
+
+connect and activate:
+
+```
+rtcon /localhost/j7-evm.host_cxt/ConsoleIn0.rtc:out /localhost/j7-evm.host_cxt/ConsoleOut0.rtc:in
+rtact /localhost/j7-evm.host_cxt/ConsoleIn0.rtc /localhost/j7-evm.host_cxt/ConsoleOut0.rtc
+```
+
+deactivate and disconnect:
+
+```
+rtdeact /localhost/j7-evm.host_cxt/ConsoleIn0.rtc /localhost/j7-evm.host_cxt/ConsoleOut0.rtc
+rtdis /localhost/j7-evm.host_cxt/ConsoleOut0.rtc:in
+rtdis /localhost/j7-evm.host_cxt/ConsoleIn0.rtc:out
+```
+
+pc terminal 1:
+
+```
+. ~/rayray/environment-setup-x86_64
+rtm-naming
+~/rayray/x86_64/share/openrtm-1.2/components/c++/examples/ConsoleInComp
+```
+
+pc terminal 2:
+
+```
+rtls -R 192.168.4.105
+.:
+j7-evm.host_cxt/
+
+./j7-evm.host_cxt:
+ConsoleIn0.rtc  ConsoleOut0.rtc
+
+rtls -R localhost
+.:
+s-HP-Laptop-14s-cr2xxx.host_cxt/
+
+./s-HP-Laptop-14s-cr2xxx.host_cxt:
+ConsoleIn0.rtc
+```
+
+connect and activate:
+
+```
+rtcon /localhost/s-HP-Laptop-14s-cr2xxx.host_cxt/ConsoleIn0.rtc:out /192.168.4.105/j7-evm.host_cxt/ConsoleOut0.rtc:in
+rtact /localhost/s-HP-Laptop-14s-cr2xxx.host_cxt/ConsoleIn0.rtc /192.168.4.105/j7-evm.host_cxt/ConsoleOut0.rtc
+```
